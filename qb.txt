@@ -1,0 +1,59 @@
+Write a program to implement the,
+i. Water jug problem using BFS and DFS search strategies. Input jug capacities
+and goal state from the user. Display the sequence of states and actions to reach
+the goal.
+ii. Tic-Tac-Toe game agent, the agent should play optimally using the minimax
+algorithm. Allow a human user to play against the AI agent. Display the result
+of the game (Win / Lose / Draw).
+CO1
+2.
+Implement the A* search algorithm for solving the 8-puzzle problem.
+i. Use an appropriate heuristic function (e.g., misplaced tiles or Manhattan
+ distance).
+ii. Display the sequence of states leading to the goal state along with the cost.
+CO1
+3.
+Write a program to perform the following operations on the selected dataset
+and display the result.
+i. Reduce dimensions using SelectKBest method.
+ii. Reduce dimensions using SelectPercentile method.
+iii. Reduce dimensions using PCA techniques.
+4. Implement Linear Regression, Ridge, Lasso and Elastic Net models. Evaluate
+and compare the performance of these models. CO2
+5.
+Write a program to implement k-Nearest Neighbors (K-NN) on any dataset
+from repository and perform following operations.
+i. Preprocess the dataset (handle missing values, encode categorical
+features).
+ii. Apply feature scaling.
+iii. Train both models and evaluate using cross-validation (k-fold).
+iv. Compare performance metrics.
+CO3
+6.
+Implement K-Means clustering on any dataset from repository of data and
+perform following operations.
+i. Preprocess the dataset (normalize features).
+ii. Perform clustering and visualize clusters.
+iii. Compare results of different clustering techniques.
+CO3
+7.
+Given a bank customer, build a neural network-based classifier that can
+determine whether they will leave or not in the next 6 months.
+Dataset Description: The dataset contains 10,000 sample points with 14 distinct
+features such as Customer ID, CreditScore, Geography, Gender, Age, Tenure,
+Balance, etc.
+Link to the Kaggle project,
+https://www.kaggle.com/barelydedicated/bank-customer-churn-modeling
+Perform following steps,
+i. Read the dataset,
+ii. Distinguish the feature and target set and divide the data set into training
+ and test sets,
+iii. Normalize the train and test data,
+iv. Initialize and build the model. Identify the points of improvement and
+ implement the same,
+v. Print the accuracy score and confusion matrix.
+CO4
+8.
+Implement and train a Convolutional Neural Network (CNN) for an imageclassification problem (e.g., handwritten digits, facial expressions, medical
+images, plant disease, or traffic signs) and evaluate model performance using
+appropriate metrics and validation techniques.
