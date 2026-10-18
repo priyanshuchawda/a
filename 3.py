@@ -1,4 +1,3 @@
-
 from sklearn.datasets import load_iris
 from sklearn.feature_selection import SelectKBest, f_classif, SelectPercentile
 from sklearn.decomposition import PCA

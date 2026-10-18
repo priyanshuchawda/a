@@ -1,0 +1,343 @@
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+
+data = load_iris()
+X = data.data
+X = MinMaxScaler().fit_transform(X)
+
+kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+k = kmeans.fit_predict(X)
+
+plt.scatter(X[:, 0], X[:, 1], c=k, cmap='viridis')
+plt.title("K-Means Clustering")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.show()
+
+hierarchy = AgglomerativeClustering(n_clusters=3)
+h = hierarchy.fit_predict(X)
+
+plt.scatter(X[:, 0], X[:, 1], c=h, cmap='rainbow')
+plt.title("Hierarchical Clustering")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.show()
+
+print("K-Means Score:", silhouette_score(X, k))
+print("Hierarchical Score:", silhouette_score(X, h))
+
+
+from sklearn.datasets import load_iris
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import cross_val_score, KFold
+from sklearn.pipeline import make_pipeline
+
+# Load dataset
+data = load_iris()
+X = data.data
+y = data.target
+
+# Handle missing values
+X = SimpleImputer(strategy="mean").fit_transform(X)
+
+# Encode categorical target
+y = LabelEncoder().fit_transform(y)
+
+# 5-fold cross-validation
+cv = KFold(n_splits=5, shuffle=True, random_state=42)
+
+# Train and compare K-NN models
+for k in [3, 5]:
+    model = make_pipeline(
+        StandardScaler(),
+        KNeighborsClassifier(n_neighbors=k)
+    )
+
+    scores = cross_val_score(model, X, y, cv=cv)
+
+    print("K =", k)
+    print("Fold scores:", scores)
+    print("Mean accuracy:", scores.mean())
+
+
+    from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.metrics import mean_absolute_error, r2_score
+
+# Load dataset
+data = load_diabetes()
+X = data.data
+y = data.target
+
+# Normalize features
+X = StandardScaler().fit_transform(X)
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+
+print("MAE:", mean_absolute_error(y_test, pred))
+print("R2:", r2_score(y_test, pred))
+
+
+model = Ridge()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+
+print("MAE:", mean_absolute_error(y_test, pred))
+print("R2:", r2_score(y_test, pred))
+
+
+model = Lasso()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+
+print("MAE:", mean_absolute_error(y_test, pred))
+print("R2:", r2_score(y_test, pred))
+
+
+model = ElasticNet()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+
+print("MAE:", mean_absolute_error(y_test, pred))
+print("R2:", r2_score(y_test, pred))
+
+
+from sklearn.datasets import load_iris
+from sklearn.feature_selection import SelectKBest, f_classif, SelectPercentile
+from sklearn.decomposition import PCA
+
+# Load dataset
+data = load_iris()
+X = data.data
+y = data.target
+
+# 1. SelectKBest
+kbest = SelectKBest(score_func=f_classif, k=2)
+X1 = kbest.fit_transform(X, y)
+print("SelectKBest:", X1.shape)
+
+# 2. SelectPercentile
+percentile = SelectPercentile(score_func=f_classif, percentile=50)
+X2 = percentile.fit_transform(X, y)
+print("SelectPercentile:", X2.shape)
+
+# 3. PCA
+pca = PCA(n_components=2)
+X3 = pca.fit_transform(X)
+print("PCA:", X3.shape)
+
+
+import heapq
+
+def heuristic(state, goal):
+    distance = 0
+    for i in range(9):
+        if state[i] != 0:
+            j = goal.index(state[i])
+            distance += abs(i//3 - j//3) + abs(i%3 - j%3)
+    return distance
+
+def solve(start, goal):
+    pq = [(heuristic(start, goal), 0, start, [])]
+    visited = set()
+
+    while pq:
+        f, cost, state, path = heapq.heappop(pq)
+
+        if state in visited:
+            continue
+        visited.add(state)
+        path = path + [state]
+
+        if state == goal:
+            for s in path:
+                print(s[:3])
+                print(s[3:6])
+                print(s[6:])
+                print()
+            print("Total cost:", cost)
+            return
+
+        z = state.index(0)
+        for move in [-3, 3, -1, 1]:
+            n = z + move
+            if 0 <= n < 9 and not (
+                move == -1 and z % 3 == 0 or
+                move == 1 and z % 3 == 2
+            ):
+                new = state.copy()
+                new[z], new[n] = new[n], new[z]
+                if tuple(new) not in visited:
+                    g = cost + 1
+                    h = heuristic(new, goal)
+                    heapq.heappush(
+                        pq, (g + h, g, new, path)
+                    )
+
+start = [1, 2, 3,
+         4, 0, 6,
+         7, 5, 8]
+
+goal = [1, 2, 3,
+        4, 5, 6,
+        7, 8, 0]
+
+solve(start, goal)
+
+
+
+def show():
+    for i in range(0, 9, 3):
+        print(board[i], "|", board[i+1], "|", board[i+2])
+
+def winner(p):
+    wins = [(0,1,2), (3,4,5), (6,7,8),
+            (0,3,6), (1,4,7), (2,5,8),
+            (0,4,8), (2,4,6)]
+    return any(all(board[i] == p for i in w) for w in wins)
+
+def minimax(ai):
+    if winner("O"): return 1
+    if winner("X"): return -1
+    if " " not in board: return 0
+
+    scores = []
+    for i in range(9):
+        if board[i] == " ":
+            board[i] = ai
+            scores.append(minimax("X" if ai == "O" else "O"))
+            board[i] = " "
+
+    return max(scores) if ai == "O" else min(scores)
+
+board = [" "] * 9
+
+while True:
+    show()
+    pos = int(input("Enter position (1-9): ")) - 1
+
+    if pos < 0 or pos > 8 or board[pos] != " ":
+        print("Invalid move!")
+        continue
+
+    board[pos] = "X"
+
+    if winner("X"):
+        show()
+        print("You Win!")
+        break
+    if " " not in board:
+        show()
+        print("Draw!")
+        break
+
+    best, move = -2, -1
+    for i in range(9):
+        if board[i] == " ":
+            board[i] = "O"
+            score = minimax("X")
+            board[i] = " "
+            if score > best:
+                best, move = score, i
+
+    board[move] = "O"
+
+    if winner("O"):
+        show()
+        print("AI Wins! You Lose!")
+        break
+    if " " not in board:
+        show()
+        print("Draw!")
+        break
+
+
+        # Write a program to implement the,
+# i. Water jug problem using BFS and DFS search strategies. Input # jug capacities
+# and goal state from the user. Display the sequence of states and # actions to reach
+# the goal.
+
+from collections import deque
+
+def moves(x,y,a,b):
+	return [
+		((a,y), "Fill Jug 1"),
+		((x,b), "Fill Jug 2"),
+		((0,y), "Empty Jug 1"),
+		((x,0), "Empty Jug 2"),
+		((x - min(x,b-y) , y+min(x,b-y)), "Pour 1 to 2"),
+		((x+min(y,a-x) , y - min(y,a-x)) , "Pour 2 to 1")
+	]
+
+def bfs(a,b,goal):
+	q = deque([((0,0) , [])])
+	visited = set()
+
+	while q:
+		(x,y), path = q.popleft()
+
+		if x == goal or y == goal:
+			for action , state in path:
+				print(action , "->" , state)
+			print("goal reached:", (x,y))
+			return
+
+		if (x,y) in visited:
+			continue
+		visited.add((x,y))
+
+		for state, action in moves (x,y,a,b):
+			if state not in visited:
+				q.append((state , path + [(action,state)]))
+	print ("none")
+
+
+
+def dfs(a, b, goal):
+    stack = [((0, 0), [])]
+    visited = set()
+
+    while stack:
+        (x, y), path = stack.pop()
+
+        if x == goal or y == goal:
+            for action, state in path:
+                print(action, "->", state)
+            print("Goal reached:", (x, y))
+            return
+
+        if (x, y) in visited:
+            continue
+
+        visited.add((x, y))
+
+        for state, action in moves(x, y, a, b):
+            if state not in visited:
+                stack.append((state, path + [(action, state)]))
+
+    print("None")
+
+
+a = int(input("Enter Jug 1 capacity: ")) #5
+b = int(input("Enter Jug 2 capacity: ")) #3
+goal = int(input("Enter goal amount: ")) #4
+
+
+bfs(a,b,goal)
+print()
+print()
+dfs(a,b,goal)
