@@ -1,44 +1,28 @@
-from sklearn.datasets import load_diabetes
-from sklearn.model_selection import train_test_split
+
+from sklearn.datasets import load_iris
+from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression , Ridge , Lasso , ElasticNet
-from sklearn.metrics import mean_absolute_error , r2_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.model_selection import cross_val_score
+from sklearn.pipeline import make_pipeline
 
-data = load_diabetes()
-X = data.data
-Y = data.target
+# Load dataset
+iris = load_iris()
+X, y = iris.data, iris.target
 
-X = StandardScaler().fit_transform(X)
+# Handle missing values
+X = SimpleImputer(strategy="mean").fit_transform(X)
 
-X_train , X_test , y_train , y_test = train_test_split(X , Y , test_size = 0.2 , random_state = 42)
+# Train and compare two KNN models
+for k in [3, 5]:
+    model = make_pipeline(
+        StandardScaler(),
+        KNeighborsClassifier(n_neighbors=k)
+    )
 
-model = LinearRegression()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
+    scores = cross_val_score(model, X, y, cv=5)
 
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-model = Ridge()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-model = Lasso()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-model = ElasticNet()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
+    print("K =", k)
+    print("Accuracy of each fold:", scores)
+    print("Mean accuracy:", scores.mean())
+    print()

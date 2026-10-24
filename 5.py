@@ -1,34 +1,38 @@
+# 5.
+# Write a program to implement k-Nearest Neighbors (K-NN) on any dataset
+# from repository and perform following operations.
+# i. Preprocess the dataset (handle missing values, encode categorical
+# features).
+# ii. Apply feature scaling.
+# iii. Train both models and evaluate using cross-validation (k-fold).
+# iv. Compare performance metrics.
 
 from sklearn.datasets import load_iris
 from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import cross_val_score, KFold
+from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import make_pipeline
 
 # Load dataset
-data = load_iris()
-X = data.data
-y = data.target
+iris = load_iris()
+X, y = iris.data, iris.target
 
 # Handle missing values
 X = SimpleImputer(strategy="mean").fit_transform(X)
 
-# Encode categorical target
-y = LabelEncoder().fit_transform(y)
+# Model 1: K = 3
+m1 = make_pipeline(StandardScaler(),
+                   KNeighborsClassifier(n_neighbors=3))
 
-# 5-fold cross-validation
-cv = KFold(n_splits=5, shuffle=True, random_state=42)
+s1 = cross_val_score(m1, X, y, cv=5)
 
-# Train and compare K-NN models
-for k in [3, 5]:
-    model = make_pipeline(
-        StandardScaler(),
-        KNeighborsClassifier(n_neighbors=k)
-    )
+# Model 2: K = 5
+m2 = make_pipeline(StandardScaler(),
+                   KNeighborsClassifier(n_neighbors=5))
 
-    scores = cross_val_score(model, X, y, cv=cv)
+s2 = cross_val_score(m2, X, y, cv=5)
 
-    print("K =", k)
-    print("Fold scores:", scores)
-    print("Mean accuracy:", scores.mean())
+# Compare accuracy
+print("K = 3, Accuracy:", s1.mean())
+print("K = 5, Accuracy:", s2.mean())
