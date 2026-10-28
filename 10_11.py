@@ -1,4 +1,3 @@
-# 6.
 # Implement K-Means clustering on any dataset from repository of data and
 # perform following operations.
 # i. Preprocess the dataset (normalize features).
