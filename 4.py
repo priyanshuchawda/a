@@ -1,49 +1,33 @@
-from sklearn.datasets import load_diabetes
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
-from sklearn.metrics import mean_absolute_error, r2_score
+# 3.
+# Write a program to perform the following operations on the selected dataset
+# and display the result.
+# i. Reduce dimensions using SelectKBest method.
+# ii. Reduce dimensions using SelectPercentile method.
+
+
+from sklearn.datasets import load_iris
+from sklearn.feature_selection import SelectKBest, SelectPercentile, f_classif
+import pandas as pd
 
 # Load dataset
-data = load_diabetes()
-X = data.data
+data = load_iris()
+X = pd.DataFrame(data.data, columns=data.feature_names)
 y = data.target
 
-# Normalize features
-X = StandardScaler().fit_transform(X)
+# 1. SelectKBest
+kbest = SelectKBest(f_classif, k=2)
+kbest.fit(X, y)
+KBest = X[X.columns[kbest.get_support()]]
 
-# Split dataset
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
+print("SelectKBest:")
+print(KBest.head())
+print("Columns:", list(KBest.columns))
 
-model = LinearRegression()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
+# 2. SelectPercentile
+percentile = SelectPercentile(f_classif, percentile=50)
+percentile.fit(X, y)
+Percentile = X[X.columns[percentile.get_support()]]
 
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-model = Ridge()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-model = Lasso()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-model = ElasticNet()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
+print("\nSelectPercentile:")
+print(Percentile.head())
+print("Columns:", list(Percentile.columns))

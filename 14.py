@@ -1,3 +1,8 @@
+# 8.
+# Implement and train a Convolutional Neural Network (CNN) for an imageclassification problem (e.g., handwritten digits, facial expressions, medical
+# images, plant disease, or traffic signs) and evaluate model performance using
+# appropriate metrics and validation techniques.
+
 import tensorflow as tf
 from sklearn.metrics import confusion_matrix, classification_report
 

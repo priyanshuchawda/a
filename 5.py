@@ -1,38 +1,28 @@
-# 5.
-# Write a program to implement k-Nearest Neighbors (K-NN) on any dataset
-# from repository and perform following operations.
-# i. Preprocess the dataset (handle missing values, encode categorical
-# features).
-# ii. Apply feature scaling.
-# iii. Train both models and evaluate using cross-validation (k-fold).
-# iv. Compare performance metrics.
+
+# Write a program to perform the following operations on the selected dataset
+# and display the result.
+# iii. Reduce dimensions using PCA techniques.
+
 
 from sklearn.datasets import load_iris
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import cross_val_score
-from sklearn.pipeline import make_pipeline
+from sklearn.decomposition import PCA
+import pandas as pd
 
 # Load dataset
-iris = load_iris()
-X, y = iris.data, iris.target
+data = load_iris()
+X = pd.DataFrame(data.data, columns=data.feature_names)
 
-# Handle missing values
-X = SimpleImputer(strategy="mean").fit_transform(X)
+print("Original Data:")
+print(X.head())
+print("Original Shape:", X.shape)
 
-# Model 1: K = 3
-m1 = make_pipeline(StandardScaler(),
-                   KNeighborsClassifier(n_neighbors=3))
+# Apply PCA
+pca = PCA(n_components=2)
+X_pca = pca.fit_transform(X)
 
-s1 = cross_val_score(m1, X, y, cv=5)
+# Create new table
+PCA_Data = pd.DataFrame(X_pca, columns=['PC1', 'PC2'])
 
-# Model 2: K = 5
-m2 = make_pipeline(StandardScaler(),
-                   KNeighborsClassifier(n_neighbors=5))
-
-s2 = cross_val_score(m2, X, y, cv=5)
-
-# Compare accuracy
-print("K = 3, Accuracy:", s1.mean())
-print("K = 5, Accuracy:", s2.mean())
+print("\nPCA Data:")
+print(PCA_Data.head())
+print("New Shape:", PCA_Data.shape)
