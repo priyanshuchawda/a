@@ -1,4 +1,3 @@
-# 8.
 # Implement and train a Convolutional Neural Network (CNN) for an imageclassification problem
 # (e.g., handwritten digits, facial expressions, medical
 # images, plant disease, or traffic signs) and evaluate model performance using
