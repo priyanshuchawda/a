@@ -1,204 +1,83 @@
-import matplotlib.pyplot as plt
-from sklearn.datasets import load_iris
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.cluster import KMeans, AgglomerativeClustering
-from sklearn.metrics import silhouette_score
+# Write a program to implement the,
+# i. Water jug problem using BFS and DFS search strategies. Input # jug capacities
+# and goal state from the user. Display the sequence of states and # actions to reach
+# the goal.
 
-data = load_iris()
-X = data.data
-X = MinMaxScaler().fit_transform(X)
+from collections import deque
 
-kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
-k = kmeans.fit_predict(X)
+def moves(x,y,a,b):
+    return [
+        ((a,y), "Fill Jug 1"),
+        ((x,b), "Fill Jug 2"),
+        ((0,y), "Empty Jug 1"),
+        ((x,0), "Empty Jug 2"),
+        ((x - min(x,b-y) , y+min(x,b-y)), "Pour 1 to 2"),
+        ((x+min(y,a-x) , y - min(y,a-x)) , "Pour 2 to 1")
+    ]
 
-plt.scatter(X[:, 0], X[:, 1], c=k, cmap='viridis')
-plt.title("K-Means Clustering")
-plt.xlabel("Feature 1")
-plt.ylabel("Feature 2")
-plt.show()
-
-hierarchy = AgglomerativeClustering(n_clusters=3)
-h = hierarchy.fit_predict(X)
-
-plt.scatter(X[:, 0], X[:, 1], c=h, cmap='rainbow')
-plt.title("Hierarchical Clustering")
-plt.xlabel("Feature 1")
-plt.ylabel("Feature 2")
-plt.show()
-
-print("K-Means Score:", silhouette_score(X, k))
-print("Hierarchical Score:", silhouette_score(X, h))
-
-
-from sklearn.datasets import load_iris
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import cross_val_score, KFold
-from sklearn.pipeline import make_pipeline
-
-# Load dataset
-data = load_iris()
-X = data.data
-y = data.target
-
-# Handle missing values
-X = SimpleImputer(strategy="mean").fit_transform(X)
-
-# Encode categorical target
-y = LabelEncoder().fit_transform(y)
-
-# 5-fold cross-validation
-cv = KFold(n_splits=5, shuffle=True, random_state=42)
-
-# Train and compare K-NN models
-for k in [3, 5]:
-    model = make_pipeline(
-        StandardScaler(),
-        KNeighborsClassifier(n_neighbors=k)
-    )
-
-    scores = cross_val_score(model, X, y, cv=cv)
-
-    print("K =", k)
-    print("Fold scores:", scores)
-    print("Mean accuracy:", scores.mean())
-
-
-    from sklearn.datasets import load_diabetes
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
-from sklearn.metrics import mean_absolute_error, r2_score
-
-# Load dataset
-data = load_diabetes()
-X = data.data
-y = data.target
-
-# Normalize features
-X = StandardScaler().fit_transform(X)
-
-# Split dataset
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
-
-model = LinearRegression()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-model = Ridge()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-model = Lasso()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-model = ElasticNet()
-model.fit(X_train, y_train)
-pred = model.predict(X_test)
-
-print("MAE:", mean_absolute_error(y_test, pred))
-print("R2:", r2_score(y_test, pred))
-
-
-from sklearn.datasets import load_iris
-from sklearn.feature_selection import SelectKBest, f_classif, SelectPercentile
-from sklearn.decomposition import PCA
-
-# Load dataset
-data = load_iris()
-X = data.data
-y = data.target
-
-# 1. SelectKBest
-kbest = SelectKBest(score_func=f_classif, k=2)
-X1 = kbest.fit_transform(X, y)
-print("SelectKBest:", X1.shape)
-
-# 2. SelectPercentile
-percentile = SelectPercentile(score_func=f_classif, percentile=50)
-X2 = percentile.fit_transform(X, y)
-print("SelectPercentile:", X2.shape)
-
-# 3. PCA
-pca = PCA(n_components=2)
-X3 = pca.fit_transform(X)
-print("PCA:", X3.shape)
-
-
-import heapq
-
-def heuristic(state, goal):
-    distance = 0
-    for i in range(9):
-        if state[i] != 0:
-            j = goal.index(state[i])
-            distance += abs(i//3 - j//3) + abs(i%3 - j%3)
-    return distance
-
-def solve(start, goal):
-    pq = [(heuristic(start, goal), 0, start, [])]
+def bfs(a,b,goal):
+    q = deque([((0,0) , [])])
     visited = set()
 
-    while pq:
-        f, cost, state, path = heapq.heappop(pq)
+    while q:
+        (x,y), path = q.popleft()
 
-        if state in visited:
-            continue
-        visited.add(state)
-        path = path + [state]
-
-        if state == goal:
-            for s in path:
-                print(s[:3])
-                print(s[3:6])
-                print(s[6:])
-                print()
-            print("Total cost:", cost)
+        if x == goal or y == goal:
+            for action , state in path:
+                print(action , "->" , state)
+            print("goal reached:", (x,y))
             return
 
-        z = state.index(0)
-        for move in [-3, 3, -1, 1]:
-            n = z + move
-            if 0 <= n < 9 and not (
-                move == -1 and z % 3 == 0 or
-                move == 1 and z % 3 == 2
-            ):
-                new = state.copy()
-                new[z], new[n] = new[n], new[z]
-                if tuple(new) not in visited:
-                    g = cost + 1
-                    h = heuristic(new, goal)
-                    heapq.heappush(
-                        pq, (g + h, g, new, path)
-                    )
+        if (x,y) in visited:
+            continue
+        visited.add((x,y))
 
-start = [1, 2, 3,
-         4, 0, 6,
-         7, 5, 8]
-
-goal = [1, 2, 3,
-        4, 5, 6,
-        7, 8, 0]
-
-solve(start, goal)
+        for state, action in moves (x,y,a,b):
+            if state not in visited:
+                q.append((state , path + [(action,state)]))
+    print ("none")
 
 
+
+def dfs(a, b, goal):
+    stack = [((0, 0), [])]
+    visited = set()
+
+    while stack:
+        (x, y), path = stack.pop()
+
+        if x == goal or y == goal:
+            for action, state in path:
+                print(action, "->", state)
+            print("Goal reached:", (x, y))
+            return
+
+        if (x, y) in visited:
+            continue
+
+        visited.add((x, y))
+
+        for state, action in moves(x, y, a, b):
+            if state not in visited:
+                stack.append((state, path + [(action, state)]))
+
+    print("None")
+
+
+a = int(input("Enter Jug 1 capacity: ")) #5
+b = int(input("Enter Jug 2 capacity: ")) #3
+goal = int(input("Enter goal amount: ")) #4
+
+
+bfs(a,b,goal)
+print()
+print()
+dfs(a,b,goal)
+
+
+# Tic-Tac-Toe game agent, the agent should play optimally using the minimax
+# algorithm. Allow a human user to play against the AI agent. Display the result
+# of the game (Win / Lose / Draw).
 
 def show():
     for i in range(0, 9, 3):
@@ -266,78 +145,301 @@ while True:
         break
 
 
-        # Write a program to implement the,
-# i. Water jug problem using BFS and DFS search strategies. Input # jug capacities
-# and goal state from the user. Display the sequence of states and # actions to reach
-# the goal.
+ # Implement the A* search algorithm for solving the 8-puzzle problem.
+# i. Use an appropriate heuristic function (e.g., misplaced tiles or Manhattan
+#  distance).
+# ii. Display the sequence of states leading to the goal state along with the cost.
 
-from collections import deque
+import heapq
 
-def moves(x,y,a,b):
-	return [
-		((a,y), "Fill Jug 1"),
-		((x,b), "Fill Jug 2"),
-		((0,y), "Empty Jug 1"),
-		((x,0), "Empty Jug 2"),
-		((x - min(x,b-y) , y+min(x,b-y)), "Pour 1 to 2"),
-		((x+min(y,a-x) , y - min(y,a-x)) , "Pour 2 to 1")
-	]
+goal = (1, 2, 3, 4, 5, 6, 7, 8, 0)
 
-def bfs(a,b,goal):
-	q = deque([((0,0) , [])])
-	visited = set()
+def heuristic(s):
+    total_sum = 0
+    for i in range(9):
+        if s[i] != 0:
+            if s[i] != goal[i]:
+                total_sum += 1
+    return total_sum
 
-	while q:
-		(x,y), path = q.popleft()
-
-		if x == goal or y == goal:
-			for action , state in path:
-				print(action , "->" , state)
-			print("goal reached:", (x,y))
-			return
-
-		if (x,y) in visited:
-			continue
-		visited.add((x,y))
-
-		for state, action in moves (x,y,a,b):
-			if state not in visited:
-				q.append((state , path + [(action,state)]))
-	print ("none")
-
-
-
-def dfs(a, b, goal):
-    stack = [((0, 0), [])]
+def solve(start):
+    q = [(heuristic(start), 0, start, [])]
     visited = set()
 
-    while stack:
-        (x, y), path = stack.pop()
+    while q:
+        f, cost, s, path = heapq.heappop(q)
 
-        if x == goal or y == goal:
-            for action, state in path:
-                print(action, "->", state)
-            print("Goal reached:", (x, y))
+        if s in visited:
+            continue
+        visited.add(s)
+        path = path + [s]
+
+        if s == goal:
+            for state in path:
+                print(state[:3])
+                print(state[3:6])
+                print(state[6:])
+                print()
+            print("Total cost:", cost)
             return
 
-        if (x, y) in visited:
-            continue
+        z = s.index(0)
 
-        visited.add((x, y))
+        for d in [-3, 3, -1, 1]:
+            n = z + d
 
-        for state, action in moves(x, y, a, b):
-            if state not in visited:
-                stack.append((state, path + [(action, state)]))
+            if 0 <= n < 9 and not (d == -1 and z % 3 == 0) and not (d == 1 and z % 3 == 2):
+                new = list(s)
+                new[z], new[n] = new[n], new[z]
+                new = tuple(new)
 
-    print("None")
+                if new not in visited:
+                    g = cost + 1
+                    heapq.heappush(q, (g + heuristic(new), g, new, path))
+
+start = tuple(map(int, input("Enter 9 numbers (use 0 for blank): ").split()))
+solve(start)
 
 
-a = int(input("Enter Jug 1 capacity: ")) #5
-b = int(input("Enter Jug 2 capacity: ")) #3
-goal = int(input("Enter goal amount: ")) #4
+# Write a program to perform the following operations on the selected dataset
+# and display the result.
+# i. Reduce dimensions using SelectKBest method.
+# ii. Reduce dimensions using SelectPercentile method.
+# iii. apply pca
+
+from sklearn.datasets import load_iris
+from sklearn.feature_selection import SelectKBest, SelectPercentile, f_classif
+from sklearn.decomposition import PCA
+import pandas as pd
+
+# Load dataset
+data = load_iris()
+x = pd.DataFrame(data.data, columns=data.feature_names)
+y = data.target
+
+# 1. SelectKBest
+kbest = SelectKBest(f_classif, k=2)
+kbest.fit(x, y)
+KBest = x[x.columns[kbest.get_support()]]
+
+print("SelectKBest:")
+print(KBest.head())
+print("Columns:", list(KBest.columns))
+
+# 2. SelectPercentile
+percentile = SelectPercentile(f_classif, percentile=50)
+percentile.fit(x, y)
+Percentile = x[x.columns[percentile.get_support()]]
+
+print("\nSelectPercentile:")
+print(Percentile.head())
+print("Columns:", list(Percentile.columns))
+
+# Apply PCA
+pca = PCA(n_components=2)
+x_pca = pca.fit_transform(x)
+
+# Create new table
+PCA_Data = pd.DataFrame(x_pca, columns=['PC1', 'PC2'])
+
+print("\nPCA Data:")
+print(PCA_Data.head())
+print("New Shape:", PCA_Data.shape)
 
 
-bfs(a,b,goal)
-print()
-print()
-dfs(a,b,goal)
+# Implement Linear Regression, Ridge, Lasso and Elastic Net models. Evaluate
+# and compare the performance of these models.
+
+from sklearn.datasets import load_diabetes
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.metrics import mean_absolute_error, r2_score
+
+# Load dataset
+data = load_diabetes()
+X = data.data
+y = data.target
+
+# Normalize features
+X = StandardScaler().fit_transform(X)
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+
+print("MAE:", mean_absolute_error(y_test, pred))
+print("R2:", r2_score(y_test, pred))
+
+
+model = Ridge()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+
+print("MAE:", mean_absolute_error(y_test, pred))
+print("R2:", r2_score(y_test, pred))
+
+
+model = Lasso()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+
+print("MAE:", mean_absolute_error(y_test, pred))
+print("R2:", r2_score(y_test, pred))
+
+
+model = ElasticNet()
+model.fit(X_train, y_train)
+pred = model.predict(X_test)
+
+print("MAE:", mean_absolute_error(y_test, pred))
+print("R2:", r2_score(y_test, pred))
+
+
+# Write a program to implement k-Nearest Neighbors (K-NN) on any dataset from repository and perform following operations.
+# i. Preprocess the dataset (handle missing values, encode categoricalfeatures).
+# ii. Apply feature scaling.
+# iii. Train both models and evaluate using cross-validation (k-fold).
+# iv. Compare performance metrics.
+
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import cross_val_score, StratifiedKFold
+
+data = load_iris()
+x = pd.DataFrame(data.data, columns=data.feature_names)
+y = data.target
+
+print("Dataset Shape:", x.shape)
+print(x.isnull().sum())
+
+# 3. Create models
+model1 = KNeighborsClassifier(n_neighbors=3)
+
+model2 = make_pipeline(StandardScaler(),KNeighborsClassifier(n_neighbors=3))
+
+# 4. Apply 5-fold cross-validation
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+score1 = cross_val_score(model1, x, y, cv=cv, scoring="accuracy")
+score2 = cross_val_score(model2, x, y, cv=cv, scoring="accuracy")
+
+print("Without Scaling Scores:", score1)
+print("With Scaling Scores:", score2)
+
+print("Without Scaling:", round(score1.mean(), 3))
+print("With Scaling:", round(score2.mean(), 3))
+
+
+# Implement K-Means clustering on any dataset from repository of data and
+# perform following operations.
+# i. Preprocess the dataset (normalize features).
+# ii. Perform clustering and visualize clusters.
+# iii. Compare results of different clustering techniques.
+
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.metrics import silhouette_score
+
+data = load_iris()
+X = data.data
+X = MinMaxScaler().fit_transform(X)
+
+kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+k = kmeans.fit_predict(X)
+
+plt.scatter(X[:, 0], X[:, 1], c=k, cmap='viridis')
+plt.title("K-Means Clustering")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.show()
+
+hierarchy = AgglomerativeClustering(n_clusters=3)
+h = hierarchy.fit_predict(X)
+
+plt.scatter(X[:, 0], X[:, 1], c=h, cmap='rainbow')
+plt.title("Hierarchical Clustering")
+plt.xlabel("Feature 1")
+plt.ylabel("Feature 2")
+plt.show()
+
+print("K-Means Score:", silhouette_score(X, k))
+print("Hierarchical Score:", silhouette_score(X, h))
+
+# Implement and train a Convolutional Neural Network (CNN) for an imageclassification problem
+# (e.g., handwritten digits, facial expressions, medical
+# images, plant disease, or traffic signs) and evaluate model performance using
+# appropriate metrics and validation techniques.
+
+import tensorflow as tf
+from sklearn.metrics import confusion_matrix, classification_report
+
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(28, 28, 1)),
+    tf.keras.layers.Conv2D(32, (3, 3), activation="relu"),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(64, activation="relu"),
+    tf.keras.layers.Dense(10, activation="softmax")
+])
+
+model.compile(optimizer="adam",loss="sparse_categorical_crossentropy",metrics=["accuracy"])
+
+model.fit(x_train, y_train, epochs=5,validation_split=0.1)
+
+loss, accuracy = model.evaluate(x_test, y_test)
+print("Test Accuracy:", accuracy)
+
+pred = model.predict(x_test).argmax(axis=1)
+print("Confusion Matrix:\n", confusion_matrix(y_test, pred))
+print(classification_report(y_test, pred))
+
+
+# Implement and train a Convolutional Neural Network (CNN) for an imageclassification problem
+# (e.g., handwritten digits, facial expressions, medical
+# images, plant disease, or traffic signs) and evaluate model performance using
+# appropriate metrics and validation techniques.
+
+import tensorflow as tf
+from sklearn.metrics import confusion_matrix, classification_report
+
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+x_train = x_train / 255.0
+x_test = x_test / 255.0
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(28, 28, 1)),
+    tf.keras.layers.Conv2D(32, (3, 3), activation="relu"),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(64, activation="relu"),
+    tf.keras.layers.Dense(10, activation="softmax")
+])
+
+model.compile(optimizer="adam",loss="sparse_categorical_crossentropy",metrics=["accuracy"])
+
+model.fit(x_train, y_train, epochs=5,validation_split=0.1)
+
+loss, accuracy = model.evaluate(x_test, y_test)
+print("Test Accuracy:", accuracy)
+
+pred = model.predict(x_test).argmax(axis=1)
+print("Confusion Matrix:\n", confusion_matrix(y_test, pred))
+print(classification_report(y_test, pred))
+
+
+       
